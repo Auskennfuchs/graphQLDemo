@@ -4,92 +4,69 @@ const {
     GraphQLInt,
     GraphQLSchema,
     GraphQLList,
-    GraphQLNonNull
+    GraphQLNonNull,
+    GraphQLError,
+    buildSchema
 } = require('graphql')
 
 const axios = require('axios')
 
-const CustomerType = new GraphQLObjectType({
-    name: 'Customer',
-    fields: ()=> ({
-        id: {type: GraphQLString},
-        name: {type: GraphQLString},
-        email: {type: GraphQLString},
-        age: {type: GraphQLInt},
-    })
-})
-
-const RootQuery = new GraphQLObjectType({
-    name: 'RootQueryType',
-    fields: {
-        customer: {
-            type: CustomerType,
-            args: {
-                id:{type: GraphQLString}
-            },
-            resolve(parentValue, args) {
-                return axios.get('http://localhost:3000/customers/'+args.id)
-                    .then(res => res.data)
-            }
-        },
-        customers: {
-            type: new GraphQLList(CustomerType),
-            resolve(parentValue, args) {
-                return axios.get('http://localhost:3000/customers')
-                    .then(res => res.data)
-            }
-        }
+const QueryFunctions = {
+    customer: ({id})=> {
+        return axios.get('http://localhost:3000/customers/'+id)
+                .then(res => res.data);
+    },
+    customers: () => {
+        return axios.get('http://localhost:3000/customers')
+            .then(res => res.data)
+    },
+    addCustomer: ({name,email,age}) => {
+        console.log(email)
+        return axios.post('http://localhost:3000/customers',{
+            name: name,
+            email: email,
+            age: age
+        })
+            .then(res => res.data)
+    },
+    deleteCustomer: ({id}) => {
+        return axios.delete('http://localhost:3000/customers/'+id)
+        .then(()=>{return true})
+        .catch(() => {return false})
+    },
+    editCustomer: (args)=> {
+        console.log("Test")
+        return axios.patch('http://localhost:3000/customers/'+args.id,
+            args
+        )
+        .then(res => res.data)
     }
-})
+}
 
-const mutation = new GraphQLObjectType({
-    name: 'Mutation',
-    fields: {
-        addCustomer: {
-            type: CustomerType,
-            args: {
-                name: {type: new GraphQLNonNull(GraphQLString)},
-                email: {type: new GraphQLNonNull(GraphQLString)},
-                age: {type: GraphQLInt}
-            },
-            resolve(parentValue,args){
-                return axios.post('http://localhost:3000/customers',{
-                    name:args.name,
-                    email:args.email,
-                    age: args.age
-                })
-                    .then(res => res.data)
-            }
-        },
-        deleteCustomer: {
-            type: CustomerType,
-            args: {
-                id: {type: new GraphQLNonNull(GraphQLString)}
-            },
-            resolve(parentValue,args){
-                return axios.delete('http://localhost:3000/customers/'+args.id)
-                    .then(res => res.data)
-            }
-        },
-        editCustomer: {
-            type: CustomerType,
-            args: {
-                id: {type: new GraphQLNonNull(GraphQLString)},
-                name: {type: GraphQLString},
-                email: {type: GraphQLString},
-                age: {type: GraphQLInt}
-            },
-            resolve(parentValue,args){
-                return axios.patch('http://localhost:3000/customers/'+args.id,
-                    args
-                )
-                    .then(res => res.data)
-            }
+module.exports = {
+    schema: buildSchema(`
+        type CustomerType {
+            id: String
+            name: String
+            email: String
+            age: Int
         }
-    }
-})
 
-module.exports = new GraphQLSchema({
-    query: RootQuery,
-    mutation
-})
+        type Query {
+            customer(id:String): CustomerType
+            customers: [CustomerType]
+        }
+
+        type Mutation {
+            addCustomer(name:String!, email:String!, age:Int): CustomerType
+            deleteCustomer(id:String!): Boolean
+            editCustomer(id:String!,name: String, email: String, age: Int): CustomerType
+        }
+
+        schema {
+            query: Query
+            mutation: Mutation            
+        }
+    `),
+    queryFunctions: QueryFunctions
+}
