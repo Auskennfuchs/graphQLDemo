@@ -26,6 +26,7 @@ const typeDefs = `
     type Query {
         customer(id:String): CustomerType
         customers: [CustomerType]
+        customerage(age:Int): [CustomerType]
     }
 
     type Mutation {
@@ -43,15 +44,13 @@ const resolvers = {
         customers: (_,args,{loaders}) => {
             return loaders.customer.loadAll()
         },
+        customerage: (_,args,{loaders})=> {
+            return loaders.customer.loadAll().then(customers => customers.filter(c=>c.age==args.age))
+        },
     },
     Mutation: {
-        addCustomer: ({name,email,age}) => {
-            console.log(email)
-            return axios.post('http://localhost:3000/customers',{
-                name: name,
-                email: email,
-                age: age
-            })
+        addCustomer: (_,args) => {
+            return axios.post('http://localhost:3000/customers',args)
                 .then(res => res.data)
         },
         deleteCustomer: ({id}) => {
