@@ -4,19 +4,29 @@
       "id": "1",
       "name": "John Doe",
       "email": "john@gmail.com",
-      "age": 50
+      "age": 50,
+      "friends": [
+        "3"
+      ]
     },
     {
       "id": "2",
       "name": "Keith Wilson",
       "email": "kieth@gmail.com",
-      "age": 50
+      "age": 50,
+      "friends": [
+        "3"
+      ]
     },
     {
       "id": "3",
       "name": "Tom Jones",
       "email": "tom@gmail.com",
-      "age": 23
+      "age": 23,
+      "friends": [
+        "1",
+        "2"
+      ]
     },
     {
       "id": "5",
@@ -43,6 +53,29 @@
     {
       "name": "Michi",
       "id": "r19oXEcv-"
+    },
+    {
+      "name": "Ilya",
+      "email": "i@sd.de",
+      "age": 29,
+      "id": "S13RRgowZ",
+      "friends": [
+        "rytP7hhUW",
+        "3",
+        "1"
+      ]
+    },
+    {
+      "name": "Niclas",
+      "email": "n@g.dfe",
+      "age": 26,
+      "id": "r1f1cNovW"
+    },
+    {
+      "name": "Benny",
+      "email": "g@dgfd.de",
+      "age": 33,
+      "id": "HJqrhNQu-"
     }
   ]
 }
